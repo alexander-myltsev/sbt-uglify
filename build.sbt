@@ -4,7 +4,7 @@ sbtPlugin := true
 
 name := "sbt-uglify"
 
-version := "0.0.1-SNAPSHOT-8eea60ceff36d532fc4a9ab291ecc210a14e2dd5"
+version := "0.0.1-SNAPSHOT-1e78db8c6e7de8ba931ae27de3a3515531f3075b"
 
 organization := "name.myltsev"
 

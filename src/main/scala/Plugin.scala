@@ -1,6 +1,7 @@
 package sbtuglify
 
 import java.nio.charset.Charset
+import java.util.regex.Pattern
 
 import sbt._
 
@@ -71,8 +72,8 @@ object Plugin extends AutoPlugin {
           (sources / "externs").descendantsExcept("*.js", HiddenFileFilter).get.toList
         // compile changed sources
         (for {
-          manifest <- sources.descendantsExcept("*.jsm", exclude).get
-          outFile <- computeOutFile(sources, manifest, target, suffix)
+          manifest <- sources.descendantsExcept("*.manifest", exclude).get
+          outFile <- computeOutFile(sources, manifest, target, suffix, out.log)
           if ((manifest newerThan outFile) || 
               (Manifest.files(manifest, downloadDir, charset).exists(_ newerThan outFile)))
         } yield { (manifest, outFile) }) match {
@@ -103,11 +104,17 @@ object Plugin extends AutoPlugin {
 
   private def compiled(under: File) = (under ** "*.js").get
 
-  private def computeOutFile(sources: File, manifest: File, targetDir: File, suffix: String): Option[File] = {
-    val outFile = IO.relativize(sources, manifest).get.replaceAll("""[.]jsm(anifest)?$""", "") + {
-      if (suffix.length > 0) "-%s.js".format(suffix)
-      else ".js"
+  private def computeOutFile(sources: File, manifest: File, targetDir: File, suffix: String, log: Logger): Option[File] = {
+    val pattern  = """(?<name>.+?)\.(?<ext>.+?)\.manifest"""
+    val regex    = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)
+    val filename = IO.relativize(sources, manifest).get
+    val matcher  = regex.matcher(filename)
+    if (matcher.find()) {
+      val outFile = s"${matcher.group("name")}$suffix.${matcher.group("ext")}"
+      Some(new File(targetDir, outFile))
+    } else {
+      log.error(s"Unexpected file name: $filename. Expected to be of pattern: $pattern")
+      None
     }
-    Some(new File(targetDir, outFile))
   }
 }
