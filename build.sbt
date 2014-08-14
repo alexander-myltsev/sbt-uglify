@@ -9,3 +9,5 @@ organization := "name.myltsev"
 Seq(scriptedSettings:_*)
 
 scriptedLaunchOpts <+= version { "-Dplugin.version=" + _ }
+
+libraryDependencies += "org.scalatest" %% "scalatest" % "1.9.2" % "test"
