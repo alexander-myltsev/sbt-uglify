@@ -95,7 +95,7 @@ object Plugin extends AutoPlugin {
 
   private def doCompile(downloadDir: File, charset: Charset, log: Logger, args: Array[String], externs: List[File])(pair: (File, File)) = {
     val (jsm, js) = pair
-    log.info(                                                                                 "Compiling %s" format jsm)
+    log.info("Compiling %s" format jsm)
     val srcFiles = Manifest.files(jsm, downloadDir, charset)
     val compiler = new Compressor(args)
     compiler.compile(srcFiles, externs, js, log)
